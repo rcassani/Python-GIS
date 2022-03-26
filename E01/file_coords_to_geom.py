@@ -10,7 +10,7 @@ from shapely.geometry import Point, LineString
 
 # Read file as CSV but ; rather than ,
 items = []
-with open('../data/helsinki_traveltimes/travelTimes_2015_Helsinki.txt') as fin:
+with open('../data/travelTimes_2015_Helsinki.txt') as fin:
   reader = csv.reader(fin, skipinitialspace=True, delimiter=';')
   headers = next(reader)
   for row in reader:

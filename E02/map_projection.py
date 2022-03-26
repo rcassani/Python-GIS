@@ -11,11 +11,17 @@ Lambert Azimuthal Equal Area projection (LAEA),
 recommended projection by European Comission.
 """
 
+import zipfile
 import geopandas as gpd
 from matplotlib import pyplot as plt
 
+# Unzip data
+data_filepath = '../data/europe_borders.zip'
+with zipfile.ZipFile(data_filepath,'r') as zip_ref:
+    zip_ref.extractall(data_filepath[:-4])
+
 # Read shapefile
-filepath = "../data/europe_borders/Europe_borders.shp"
+filepath = data_filepath[:-4] + '/Europe_borders.shp'
 data = gpd.read_file(filepath)
 
 # Current coordinate reference system

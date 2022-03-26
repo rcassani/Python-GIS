@@ -19,7 +19,7 @@ points = []
 # social media posts inside Kruger national park in South Africa
 # Data is in epsg(4326)
 
-with open('../data/southafrica_posts/some_posts.csv') as fin:
+with open('../data/southafrica_posts.csv') as fin:
     reader = csv.reader(fin, skipinitialspace=True, delimiter=',')
     headers = next(reader)
     for row in reader:
@@ -29,6 +29,9 @@ with open('../data/southafrica_posts/some_posts.csv') as fin:
         item['coords'] = Point(float(item['lon']), float(item['lat']))
         points.append(item['coords'])
         items.append(item)
+
+# Limit to 20% of data
+items = items[0 : len(items) // 5]
 
 # Create GeoDataFrame from dictionary
 geodf = gpd.GeoDataFrame(items)

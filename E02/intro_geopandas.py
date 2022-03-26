@@ -6,12 +6,17 @@ Read and Write shapefiles
 """
 
 import geopandas as gpd
-from matplotlib import pyplot as plt
 from shapely.geometry import Polygon
 from fiona.crs import from_epsg
+import zipfile
+
+# Unzip data
+data_filepath = '../data/damselfish_distributions.zip'
+with zipfile.ZipFile(data_filepath,'r') as zip_ref:
+    zip_ref.extractall(data_filepath[:-4])
 
 #%% Read shapefile with geopandas
-filepath = '../data/damselfish_distributions/DAMSELFISH_distributions.shp'
+filepath = data_filepath[:-4] + '/DAMSELFISH_distributions.shp'
 data = gpd.read_file(filepath)
 
 # Data is the world distribution of the Damselfish, for 30 species.
