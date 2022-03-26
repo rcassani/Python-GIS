@@ -1,0 +1,7 @@
+name, id, address
+Itis, 0, "Itäkatu 1-7, 00930 Helsinki, Finland"
+Forum, 1, "Mannerheimintie 20, 00100 Helsinki, Finland"
+Iso-omena,2, "Piispansilta 11, 02230 Espoo, Finland"
+Sello, 3, "Leppävaarankatu 3-9, 02600 Espoo, Finland"
+Jumbo, 4, "Vantaanportinkatu 3, 01510 Vantaa, Finland"
+REDI, 5, "Hermannin rantatie 5, 00580 Helsinki, Finland"
