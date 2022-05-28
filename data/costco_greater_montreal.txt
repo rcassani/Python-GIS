@@ -1,0 +1,16 @@
+name, address, latitude, longitude
+Sud-Ouest, "300 Rue Bridge, Montreal, QC H3K 2C3", 45.48577, -73.55358
+Marche central, "1015 Rue Du Marché Central, Montreal, Quebec H4N 3J8", 45.53621, -73.6605
+Point-Claire, "5701 Trans-Canada Hwy, Pointe-Claire, Quebec H9R 5E8", 45.46951, -73.81781
+Anjou, "9401 Bd des Sciences, Anjou, QC H1J 0A6", 45.6233, -73.5577
+Laval, "2999 A. Jean-Noël-Lavoie, Laval, QC H7P 4K1", 45.57422, -73.75685
+Boucherville, "635 Chem. de Touraine, Boucherville, QC J4B 5E4", 45.57758, -73.40586
+Longueuil, "5025 Bd Cousineau, Longueuil, QC J3Y 3K7", 45.50514, -73.43227
+Saint-Bruno, "1000 Bd Saint-Bruno, Saint-Bruno-de-Montarville, QC J3V 6P4", 45.50227, -73.38191
+Brossard, "9430 Taschereau Blvd, Brossard, Quebec J4X 2W2", 45.43415, -73.47925
+Candiac, "60 Rue de Strasbourg, Candiac, QC J5R 0B4", 45.37093, -73.51692
+Vaudreuil-Dorion, "22400 Chem. Dumberry, Vaudreuil-Dorion, QC J7V 0M8", 45.41489, -74.03839
+Terrebonne, "870 Mnt des Pionniers, Terrebonne, QC J6V 1N9", 45.72186, -73.50648
+Boisbriand, "3600 Av. des Grandes Tourelles, Boisbriand, QC J7H 0A1", 45.6323, -73.85006
+Saint-Jerome, "1001 Boul Jean-Baptiste-Rolland O, Saint-Jérôme, QC J7Z 5T6", 45.76572, -74.01829
+
