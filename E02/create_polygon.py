@@ -1,6 +1,5 @@
 import geopandas as gpd
 from shapely.geometry import Polygon, Point
-from fiona.crs import from_epsg
 import os
 
 # X -coordinates 
@@ -48,8 +47,9 @@ geo = geo.set_geometry([poly])
 # --------------------------------------------------------------------
 # Note: you do not need to define the coordinate reference system at this time
 # Set the GeoDataFrame's coordinate system to WGS84
-geo.crs = from_epsg(4326)
-os.mkdir('./results')
+geo.set_crs('epsg:4326', inplace=True)
+if not os.path.exists('./results'):
+    os.mkdir('./results')
 outfp = r"./results/geo_poly.shp"
 geo.to_file(outfp)
 

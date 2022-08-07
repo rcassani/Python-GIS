@@ -7,8 +7,8 @@ Read and Write shapefiles
 
 import geopandas as gpd
 from shapely.geometry import Polygon
-from fiona.crs import from_epsg
 import zipfile
+import os
 
 # Unzip data
 data_filepath = '../data/damselfish_distributions.zip'
@@ -61,9 +61,11 @@ newdata.plot()
 #Determine the coordinate reference system (projection) CRS for GeoDataFrame
 print(newdata.crs)  
 # Set the GeoDataFrame's coordinate system to WGS84 (EPSG:4326)
-newdata.set_crs(from_epsg(4326), inplace=True)
+newdata.set_crs('epsg:4326', inplace=True)
 # Let's see how the crs definition looks like
 newdata.crs
 # Write the data into that Shapefile
+if not os.path.exists('./results'):
+    os.mkdir('./results')
 outfp = r"./results/helsinki_senate.shp"
 newdata.to_file(outfp)
