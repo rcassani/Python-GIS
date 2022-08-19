@@ -30,11 +30,13 @@ print('Current CRS: ' + str(data.crs)) #WGS84 == EPSG:4326
 # One example of the content of the data, it seems to be latitude-longitude
 item = data.iloc[0]
 
-# Plot data with WGS84 projection
+# Plot data with EPSG4326 (WGS84) projection
 plt.figure()
-plt.title("WGS84 projection")
+plt.title("EPSG4326 (WGS84) projection")
 ax = plt.gca()
 data.plot(facecolor='gray', edgecolor='black', ax=ax)
+ax.set_xlabel('deg')
+ax.set_ylabel('deg')
 
 # Change CRS to EPSG: 3035
 data_proj = data.copy()
@@ -45,5 +47,6 @@ plt.figure()
 plt.title("EPSG3035 projection")
 ax = plt.gca()
 data_proj.plot(facecolor='gray', edgecolor='black', ax=ax)
-
+ax.set_xlabel('m')
+ax.set_ylabel('m')
 

@@ -55,8 +55,9 @@ geo.to_file(outfp)
 
 # P6. Plot the polygon using taking advantage of the .plot() -function in GeoDataFrame. Save a PNG figure out of your plot and upload it to your GitHub repository.
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-geo.plot()
-
+ax = geo.plot()
+ax.set_xlabel('deg')
+ax.set_ylabel('deg')
 
 
 

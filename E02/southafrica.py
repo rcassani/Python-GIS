@@ -43,7 +43,9 @@ geodf.set_geometry(col='geometry', inplace=True)
 geodf.set_crs('epsg:4326', inplace=True)
 
 # Plot
-geodf.plot()
+ax = geodf.plot()
+ax.set_xlabel('deg')
+ax.set_ylabel('deg')
 
 # Save shapely
 outfp = r"./results/geo_poly.shp"
@@ -100,4 +102,6 @@ print('Mean distance travelled (between two posts) was {0} meters'.format(
 print('Maximum distance travelled (between two posts) was {0} meters'.format(
     movs['distance'].max()))
 # Plot all trips
-movs.plot()
+ax = movs.plot()
+ax.set_xlabel('m')
+ax.set_ylabel('m')

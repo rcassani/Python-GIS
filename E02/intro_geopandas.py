@@ -32,7 +32,10 @@ data = gpd.read_file(filepath)
 species = data.BINOMIAL.unique()
 
 # Plot all species
-data.plot(column='BINOMIAL', categorical=True, legend=True, cmap='tab20c')
+ax = data.plot(column='BINOMIAL', categorical=True, legend=True, cmap='tab20c', 
+          legend_kwds={'loc':'upper center', 'bbox_to_anchor':(1.05, 1.2)})
+ax.set_ylim(-60, 60)
+
 
 # Plot top-5 species
 # Counting instances per specie
@@ -40,7 +43,9 @@ count_spacies = data['BINOMIAL'].value_counts(dropna=False)
 # Get top-5 species by number of instances 
 top_5 = count_spacies.index.to_list()[0:5]
 data_top5 = data[data.BINOMIAL.isin(top_5)]
-data_top5.plot(column='BINOMIAL', categorical=True, legend=True)
+data_top5.plot(column='BINOMIAL', categorical=True, legend=True, cmap='tab20c', 
+          legend_kwds={'loc':'upper center', 'bbox_to_anchor':(1.05, 1.2)})
+ax.set_ylim(-60, 60)
     
 ##%% Write geometries to a shapefile with geopandas
 # Create an empty geopandas GeoDataFrame
@@ -56,7 +61,10 @@ poly = Polygon(coordinates)
 # Add to gfd  
 newdata.loc[0, 'geometry'] = poly
 newdata.loc[0, 'Location'] = 'Helsinki Senate'
-newdata.plot()
+ax = newdata.plot()
+ax.set_xlabel('deg')
+ax.set_ylabel('deg')
+ax.set_title('Helsinki Senate square')
 
 #Determine the coordinate reference system (projection) CRS for GeoDataFrame
 print(newdata.crs)  
