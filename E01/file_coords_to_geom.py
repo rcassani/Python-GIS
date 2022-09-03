@@ -43,7 +43,7 @@ for item in items:
    dest_point_m = transform(project, dest_point_deg)
    line = LineString([orig_point_m, dest_point_m])
    distances.append(line.length)
-   
+
 distances = np.array(distances) # in meters
 mean_dist = np.mean(distances)
-print('The average Euclidian distance between points was: {0:.2f} km'.format(mean_dist/1000))
+print('The average Euclidean distance between points was: {0:.2f} km'.format(mean_dist/1000))
