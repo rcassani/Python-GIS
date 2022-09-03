@@ -10,6 +10,8 @@ import csv
 import geopandas as gpd
 import contextily as cx
 import os
+from matplotlib_scalebar.scalebar import ScaleBar
+
 
 # Problem 1 Geocode shopping centers 
 # Adddresses from Google for these shopping centers. Info saved as malls.txt
@@ -39,7 +41,9 @@ data_gdf.to_crs(epsg=4326)
 # Project to EPSG 3035
 data_gdf = data_gdf.to_crs(epsg=3035)
 # Write the data into that Shapefile
-os.mkdir('results')
+# Export the geometries to a shapefile
+if not os.path.exists('./results'):
+    os.mkdir('./results')
 outfp = r"./results/shopping_centers.shp"
 data_gdf.to_file(outfp)
 
@@ -75,6 +79,7 @@ if not pop.crs == data_gdf.crs:
 join = gpd.sjoin(pop, data_gdf, how="inner", op="within")
 # Perform summation per column 'name' of shopping center
 sum_mall = join.groupby(['name']).sum()['population']
+print('Malls ranked according the largest population in a 5-km radious')
 print(sum_mall.sort_values(ascending=False))
 
 # Problem 4: What is the closest shopping center from your home / work?
@@ -95,9 +100,11 @@ data_gdf_point['d_home'] = data_gdf_point['geometry'].apply(distance, args=(geo_
 data_gdf_point['d_work'] = data_gdf_point['geometry'].apply(distance, args=(geo_hw.iloc[1]['geometry'],))
 
 print('Shopping center closets to Home:')
-print(data_gdf_point.iloc[data_gdf_point['d_home'].idxmin()]['name'])
+print(data_gdf_point.iloc[data_gdf_point['d_home'].idxmin()]['name'] + 
+      ', at {0:.2f} km'.format(data_gdf_point['d_home'].min() / 1000))
 print('Shopping center closets to Work:')
-print(data_gdf_point.iloc[data_gdf_point['d_work'].idxmin()]['name'])
+print(data_gdf_point.iloc[data_gdf_point['d_work'].idxmin()]['name'] +
+      ', at {0:.2f} km'.format(data_gdf_point['d_work'].min() / 1000))
 
 # Plot shopping centers 
 ax = data_gdf_point.plot(facecolor='blue')
@@ -106,7 +113,11 @@ for x, y, label in zip(data_gdf_point.geometry.x, data_gdf_point.geometry.y, dat
 # Plot Home and Work
 geo_hw.plot(ax=ax, facecolor='red')
 for x, y, label in zip(geo_hw.geometry.x, geo_hw.geometry.y, ['Home', 'Work']):
-    ax.annotate(label, xy=(x, y), xytext=(3, 3), textcoords="offset points")
+    ax.annotate(label, xy=(x, y), xytext=(3, -10), textcoords="offset points")
 # Add background map
 cx.add_basemap(ax, crs=geo_hw.crs)
+# Scale bar
+scale_bar = ScaleBar(dx=1, location='lower right')
+ax.add_artist(scale_bar)
+ax.axis('off')
 

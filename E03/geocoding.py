@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Geocoding is converting addresses (24 Sussex Dr, Ottawa, ON K1M 1M4, Canada) 
-into coordinates (45.444368, -75693835) or vice versa
+Geocoding: converting addresses into coordinates
 """
 
 import pandas as pd
 from geopandas.tools import geocode
+from matplotlib import pyplot as plt
 import os
 
 # File with addresses
@@ -25,9 +25,14 @@ geo.loc[0]
 join = geo.join(data['id'])
 
 # Export the geometries to a shapefile
-os.mkdir('results')
+if not os.path.exists('./results'):
+    os.mkdir('./results')
 filepath_shp = r"./results/addresses.shp"
 join.to_file(filepath_shp)
 
 # Plot of the location of the addresses
 join.plot()
+plt.title("Some Helsinki addresses")
+ax = plt.gca()
+ax.set_xlabel('longitude (deg)')
+ax.set_ylabel('latitude (deg)')
