@@ -5,6 +5,7 @@ Where is the closest Costco in Montreal?
 """
 
 import zipfile
+import folium
 import pandas as pd
 import numpy as np
 import geopandas as gpd
@@ -123,8 +124,9 @@ for x in np.arange(x_min, x_max, polygon_side):
         new_polygon['geometry'] = Polygon(coordinates)               
         polygon_grid.append(new_polygon)
 grid = gpd.GeoDataFrame(data=polygon_grid, crs=mtl_epsg)
-
-grido  = grid.copy()
+grid['index_col'] = grid.index
+# Remove water bodies
+grid = grid.overlay(wtr_gdf, how='difference')
 
 #%% Find the time to each Costco for each point in the grid
 def isCenterInPolygon(polygon1, polygon2):
@@ -137,15 +139,15 @@ for ix, costco in costcos_gdf.iterrows():
     iso_costcos_label = 'iso_costco_' + '{:02}'.format(ix)
     iso_costcos_labels.append(iso_costcos_label)
     # iso_costco_XX = N+1 with N = len(isochrones)
-    grido[iso_costcos_label] = n_isos + 1
+    grid[iso_costcos_label] = n_isos + 1
     # Sort isos from longer to shorter, and re-index
     iso_gdf = isos_gdf[isos_gdf['name'] == costco['name']].sort_values(by='value', ascending=False, ignore_index=True)
     for ic, iso in iso_gdf.iterrows():        
-        tmp = grido['geometry'].apply(isCenterInPolygon, polygon2=iso['geometry']).astype(int)
-        grido[iso_costcos_label] = grido[iso_costcos_label] - tmp
+        tmp = grid['geometry'].apply(isCenterInPolygon, polygon2=iso['geometry']).astype(int)
+        grid[iso_costcos_label] = grid[iso_costcos_label] - tmp
 
 # Find minimum isochrone
-grido['iso_costco_min'] = grido[iso_costcos_labels].min(axis=1)    
+grid['iso_costco_min'] = grid[iso_costcos_labels].min(axis=1)    
 
 #%% Plotting by iso_costco_min
 # Costco logo, from https://seekvectors.com/post/costco-icon
@@ -156,10 +158,9 @@ costco_marker = parse_path("""M995.1,61.2c-84.7-24.8-180.9-38-276.7-38C376.8,23.
 	               C461,399.5,580.4,319.9,707.1,319.9c95.8,0,172.2,42.9,230.2,92.8L995.1,61.2z""")
 costco_marker = costco_marker.transformed(mpl.transforms.Affine2D().scale(1,-1))
 
-ax = grido.plot(column="iso_costco_min", cmap="viridis_r", linewidth=0, categorical=True, legend=True, alpha=0.8, zorder=2)
-cx.add_basemap(ax, crs=grido.crs, source=cx.providers.Stamen.TonerBackground, zorder=1)
-wtr_gdf.plot(edgecolor='none', facecolor='#AAAAAA', zorder=3, ax=ax)
-cx.add_basemap(ax, crs=grido.crs, source=cx.providers.Stamen.TonerLabels, zorder=4)
+ax = grid.plot(column="iso_costco_min", cmap="viridis_r", linewidth=0, categorical=True, legend=True, alpha=0.8, zorder=2)
+cx.add_basemap(ax, crs=grid.crs, source=cx.providers.Stamen.TonerBackground, zorder=1)
+cx.add_basemap(ax, crs=grid.crs, source=cx.providers.Stamen.TonerLabels, zorder=4)
 ax.set_title('Driving time to closest Costco (minutes)')
 costcos_gdf.plot(facecolor='#E21D39', edgecolor='k', ax=ax, marker=costco_marker, markersize=500, zorder=5)
 costcos_gdf.plot(color='black', ax=ax, markersize=10, zorder=5)
@@ -185,3 +186,27 @@ def replace_legend_items(legend, mapping):
                 txt.set_text(v)
 
 replace_legend_items(ax.get_legend(), clusdict)
+grid['iso_costco_min_label'] = grid['iso_costco_min'] * 5
+
+#%% Interactive map
+m = folium.Map(location=[45.5765, -73.6276], zoom_start=11, tiles='cartodbpositron')
+
+folium.Choropleth(
+    geo_data=grid,
+    data=grid,
+    columns=['index_col','iso_costco_min_label'],
+    popup=folium.Popup("feature.properties.index_col"),
+    key_on='feature.properties.index_col',
+    fill_color='YlGnBu',
+    fill_opacity=0.5,
+    line_weight=0,
+    legend_name='Driving time to closest Costco (minutes)',
+).add_to(m)
+
+for ix, item in costcos_gdf.iterrows():
+    folium.Marker([item.latitude, item.longitude], 
+                  popup=item['name'],
+                  tooltip=item['name'],
+                  icon=folium.Icon(color='red', icon='shopping-cart', prefix='fa')).add_to(m)
+
+m.save("time_costco_montreal.html")

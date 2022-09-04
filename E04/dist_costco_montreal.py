@@ -13,6 +13,7 @@ import contextily as cx
 import matplotlib as mpl
 from matplotlib_scalebar.scalebar import ScaleBar
 from svgpath2mpl import parse_path
+import folium
 
 # Unzip data
 data_filepath = '../data/greater_montreal.zip'
@@ -82,22 +83,24 @@ for x in np.arange(x_min, x_max, polygon_side):
         new_polygon['geometry'] = Polygon(coordinates)               
         polygon_grid.append(new_polygon)
 grid = gpd.GeoDataFrame(data=polygon_grid, crs=mtl_epsg)
+grid['index_col'] = grid.index
+# Remove water bodies
+grid = grid.overlay(wtr_gdf, how='difference')
 
 #%% Compute distance for each polygon centroid to every data point
 def distance(point, polygon):
     # Distance from a point to the centroid of a polygon
     return point.distance(polygon.centroid)
 
-grido  = grid.copy()
 dist_labels = []
 for data_ix, data_point in zip(data_gdf.index, data_gdf['geometry']):   
     dist_label = 'dist' + '{:02}'.format(data_ix)
     dist_labels.append(dist_label)
-    grido[dist_label] = grido['geometry'].apply(distance, args=(data_point,))   
+    grid[dist_label] = grid['geometry'].apply(distance, args=(data_point,))   
 
 # Find minimum distance
-grido['dist_min'] = grido[dist_labels].min(axis=1)
-grido['dist_min_km'] = grido['dist_min'] / 1000
+grid['dist_min'] = grid[dist_labels].min(axis=1)
+grid['dist_min_km'] = grid['dist_min'] / 1000
 
 
 #%% Plotting by distance
@@ -109,11 +112,10 @@ costco_marker = parse_path("""M995.1,61.2c-84.7-24.8-180.9-38-276.7-38C376.8,23.
 	               C461,399.5,580.4,319.9,707.1,319.9c95.8,0,172.2,42.9,230.2,92.8L995.1,61.2z""")
 costco_marker = costco_marker.transformed(mpl.transforms.Affine2D().scale(1,-1))
 
-ax = grido.plot(column="dist_min_km", cmap="viridis_r", linewidth=0, scheme="userdefined", 
+ax = grid.plot(column="dist_min_km", cmap="viridis_r", linewidth=0, scheme="userdefined", 
                 classification_kwds={'bins':[5, 10, 15, 20, 25, 35, 55]}, legend=True, alpha=0.5, zorder=2)
-cx.add_basemap(ax, crs=grido.crs, source=cx.providers.Stamen.TonerBackground, zorder=1)
-wtr_gdf.plot(edgecolor='none', facecolor='#AAAAAA', zorder=3, ax=ax)
-cx.add_basemap(ax, crs=grido.crs, source=cx.providers.Stamen.TonerLabels, zorder=4)
+cx.add_basemap(ax, crs=grid.crs, source=cx.providers.Stamen.TonerBackground, zorder=1)
+cx.add_basemap(ax, crs=grid.crs, source=cx.providers.Stamen.TonerLabels, zorder=4)
 ax.set_title('Distance to closest Costco (km)')
 data_gdf.plot(facecolor='#E21D39', edgecolor='k', ax=ax, marker=costco_marker, markersize=500, zorder=5)
 data_gdf.plot(color='black', ax=ax, markersize=10, zorder=5)
@@ -126,3 +128,25 @@ ax.axes.yaxis.set_visible(False)
 scale_bar = ScaleBar(dx=1, location='lower right')
 ax.add_artist(scale_bar)
 
+#%% Interactive map
+m = folium.Map(location=[45.5765, -73.6276], zoom_start=11, tiles='cartodbpositron')
+
+folium.Choropleth(
+    geo_data=grid,
+    data=grid,
+    columns=['index_col','dist_min_km'],
+    popup=folium.Popup("feature.properties.index_col"),
+    key_on='feature.properties.index_col',
+    fill_color='YlGnBu',
+    fill_opacity=0.5,
+    line_weight=0,
+    legend_name='Distance to closest Costco (km)',
+).add_to(m)
+
+for ix, item in data_gdf.iterrows():
+    folium.Marker([item.latitude, item.longitude], 
+                  popup=item['name'],
+                  tooltip=item['name'],
+                  icon=folium.Icon(color='red', icon='shopping-cart', prefix='fa')).add_to(m)
+
+m.save("dist_costco_montreal.html")
